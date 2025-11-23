@@ -1,6 +1,6 @@
 package com.edu.api_supermercado.entity;
 
-import com.edu.api_supermercado.model.enums.CategoriaProducto;
+import com.edu.api_supermercado.enums.CategoriaProducto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,4 +25,6 @@ public class Producto {
     private BigDecimal precio;
     @Column(nullable = false)
     private Integer stock;
+    @Column(nullable = false)
+    private Boolean isDeleted;
 }

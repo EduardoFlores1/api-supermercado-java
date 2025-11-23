@@ -1,6 +1,6 @@
 package com.edu.api_supermercado.entity;
 
-import com.edu.api_supermercado.model.enums.EstadoVenta;
+import com.edu.api_supermercado.enums.EstadoVenta;
 import jakarta.persistence.*;
 import lombok.*;
 

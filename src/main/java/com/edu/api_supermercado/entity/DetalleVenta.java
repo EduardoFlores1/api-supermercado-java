@@ -29,9 +29,9 @@ public class DetalleVenta {
     @Column(nullable = false)
     private Integer cantidad;
     @Column(nullable = false)
-    private Double precio;
+    private BigDecimal precio;
 
     public BigDecimal calcularSubTotal() {
-        return BigDecimal.valueOf(cantidad * precio);
+        return precio.multiply(BigDecimal.valueOf(cantidad));
     }
 }
