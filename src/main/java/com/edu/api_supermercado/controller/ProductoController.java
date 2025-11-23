@@ -5,11 +5,11 @@ import com.edu.api_supermercado.dtos.producto.ProductoResponse;
 import com.edu.api_supermercado.service.IProductoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -19,9 +19,12 @@ public class ProductoController {
     private IProductoService productoService;
 
     @GetMapping
-    public ResponseEntity<List<ProductoResponse>> listar() {
+    public ResponseEntity<Page<ProductoResponse>> listar(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
         return ResponseEntity.ok(
-                productoService.listarProductos()
+                productoService.listarProductos(page, size)
         );
     }
 

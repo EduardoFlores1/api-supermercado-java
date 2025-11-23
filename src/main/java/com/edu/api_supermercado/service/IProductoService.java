@@ -2,11 +2,10 @@ package com.edu.api_supermercado.service;
 
 import com.edu.api_supermercado.dtos.producto.ProductoRequest;
 import com.edu.api_supermercado.dtos.producto.ProductoResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface IProductoService {
-    List<ProductoResponse> listarProductos();
+    Page<ProductoResponse> listarProductos(Integer page, Integer size);
     ProductoResponse buscarPorId(Long id);
     ProductoResponse crearProducto(ProductoRequest request);
     ProductoResponse actualizarProducto(Long id, ProductoRequest request);

@@ -9,10 +9,11 @@ import com.edu.api_supermercado.repository.IProductoRepository;
 import com.edu.api_supermercado.service.IProductoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,16 +24,17 @@ public class ProductoService implements IProductoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductoResponse> listarProductos() {
+    public Page<ProductoResponse> listarProductos(Integer page, Integer size) {
 
         log.info("[GET]: Iniciando listado de productos");
 
-        var result = productoRepository.findAll()
-                .stream()
-                .map(ProductoMapper::toListResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size);
 
-        log.info("[GET]: Listado finalizado exitosamente, total: {}", result.size());
+        var result = productoRepository.findAll(pageable)
+                .map(ProductoMapper::toListResponse);
+
+
+        log.info("[GET]: Listado finalizado exitosamente");
 
         return result;
     }
