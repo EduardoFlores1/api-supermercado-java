@@ -16,7 +16,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class ProductoController {
 
-    private IProductoService productoService;
+    private final IProductoService productoService;
 
     @GetMapping
     public ResponseEntity<Page<ProductoResponse>> listar(
@@ -60,6 +60,7 @@ public class ProductoController {
     public ResponseEntity<ProductoResponse> eliminarById(
             @PathVariable Long id
     ) {
+        productoService.eliminarProducto(id);
         return ResponseEntity.noContent().build();
     }
 }
