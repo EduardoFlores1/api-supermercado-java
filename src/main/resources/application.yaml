@@ -1,3 +1,14 @@
 spring:
   application:
     name: api-supermercado
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=db_supermercado
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: eduardo
+    password: eduardo
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+  jpa:
+    hibernate:
+      ddl-auto: create
