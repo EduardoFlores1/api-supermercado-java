@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.edu</groupId>
 	<artifactId>api-supermercado</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>api-supermercado</name>
 	<description>API Supermercado by Todocode</description>
 	<url/>
