@@ -1,9 +1,11 @@
 package com.edu.api_supermercado.service.impl;
 
+import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
 import com.edu.api_supermercado.entity.Sucursal;
 import com.edu.api_supermercado.repository.ISucursalRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +32,7 @@ class SucursalServiceTest {
 
     private Sucursal sucursalEntity;
     private Sucursal sucursalEntity2;
+    private SucursalRequest sucursalRequest;
 
     @BeforeEach
     void setUp() {
@@ -46,6 +49,12 @@ class SucursalServiceTest {
                 .direccion("Calle Pisco")
                 .telefono("987654321")
                 .build();
+
+        this.sucursalRequest = new SucursalRequest(
+                "Ica",
+                "Calle Ica",
+                "987654321"
+        );
     }
 
     @Test
@@ -97,7 +106,22 @@ class SucursalServiceTest {
     }
 
     @Test
-    void crearSucursal() {
+    @DisplayName("crearSucursal: Retorna 200 ok, cuando request es valid")
+    void crearSucursal_ok() {
+
+        when(sucursalRepository.save(any(Sucursal.class))).thenReturn(sucursalEntity);
+
+        // when & then
+        var response = sucursalService.crearSucursal(sucursalRequest);
+
+        assertNotNull(response);
+        assertEquals(1, response.getId());
+        assertEquals(sucursalRequest.nombre(), response.getNombre());
+        assertEquals(sucursalRequest.direccion(), response.getDireccion());
+        assertEquals(sucursalRequest.telefono(), response.getTelefono());
+
+        verify(sucursalRepository, times(1)).save(any(Sucursal.class));
+
     }
 
     @Test

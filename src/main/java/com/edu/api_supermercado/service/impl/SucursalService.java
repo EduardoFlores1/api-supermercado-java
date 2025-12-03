@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class SucursalService implements ISucursalService {
     private final ISucursalRepository sucursalRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<SucursalResponse> listarSucursales(Integer page, Integer size) {
 
         log.info("[GET]: Iniciando listado de sucursales");
@@ -35,8 +37,18 @@ public class SucursalService implements ISucursalService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public SucursalResponse crearSucursal(SucursalRequest request) {
-        return null;
+
+        log.info("[POST]: Creando sucursal, nombre: {}", request.nombre());
+
+        var newSucursalEntity = sucursalRepository.save(
+                SucursalMapper.toCreateFromRequest(request)
+        );
+
+        log.info("[POST]: Sucursal creada exitosamente, nombre: {}", request.nombre());
+
+        return SucursalMapper.toResponseFromEntity(newSucursalEntity);
     }
 
     @Override

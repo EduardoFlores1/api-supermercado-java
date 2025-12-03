@@ -1,8 +1,10 @@
 package com.edu.api_supermercado.controller;
 
+import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
 import com.edu.api_supermercado.entity.Sucursal;
 import com.edu.api_supermercado.service.ISucursalService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,11 +30,15 @@ class SucursalControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockitoBean
     private ISucursalService sucursalService;
 
     private Sucursal sucursalEntity;
     private SucursalResponse sucursalResponse;
+    private SucursalRequest sucursalRequest;
 
     @BeforeEach
     void setUp() {
@@ -48,6 +55,12 @@ class SucursalControllerTest {
                 .direccion("Calle Pisco")
                 .telefono("987654321")
                 .build();
+
+        this.sucursalRequest = new SucursalRequest(
+                "Ica",
+                "Calle Ica",
+                "987654321"
+        );
     }
 
     @Test
@@ -98,4 +111,57 @@ class SucursalControllerTest {
 
         verify(sucursalService, times(1)).listarSucursales(2,5);
     }
+
+    @Test
+    @DisplayName("crear: Crea una sucursal con argumentos validos")
+    void crear_ok() throws Exception{
+
+        when(sucursalService.crearSucursal(any(SucursalRequest.class))).thenReturn(sucursalResponse);
+
+        // when + then
+
+        mockMvc.perform(post("/api/sucursales")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sucursalRequest)))
+
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/sucursales/" + sucursalResponse.getId()))
+                .andExpect(jsonPath("$.id").value(sucursalResponse.getId()))
+                .andExpect(jsonPath("$.nombre").value("Pisco"))
+                .andExpect(jsonPath("$.direccion").value("Calle Pisco"))
+                .andExpect(jsonPath("$.telefono").value("987654321"));
+
+        verify(sucursalService, times(1)).crearSucursal(any(SucursalRequest.class));
+    }
+
+    @Test
+    @DisplayName("crear: Crea una sucursal con argumentos inválidos")
+    void crear_errorValid() throws Exception {
+
+        String msgErrorDetail = "Error de validación en uno o más campos";
+        SucursalRequest requestInvalido = new SucursalRequest(
+                "",
+                "",
+                "98765432"
+        );
+
+        mockMvc.perform(post("/api/sucursales")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestInvalido)))
+
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(status().isBadRequest())
+
+                .andExpect(jsonPath("$.title").value("Error De Validación"))
+                .andExpect(jsonPath("$.detail").value(msgErrorDetail))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors.nombre").exists())
+                .andExpect(jsonPath("$.errors.direccion").exists())
+                .andExpect(jsonPath("$.errors.telefono").exists());
+
+        verify(sucursalService, never()).crearSucursal(any(SucursalRequest.class));
+    }
+
+
 }

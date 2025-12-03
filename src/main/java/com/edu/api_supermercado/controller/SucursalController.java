@@ -1,15 +1,16 @@
 package com.edu.api_supermercado.controller;
 
+import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
 import com.edu.api_supermercado.service.ISucursalService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/sucursales")
@@ -28,5 +29,18 @@ public class SucursalController {
         log.info("[GET-SucursalController]: llamando al controlador listar");
 
         return ResponseEntity.ok(sucursalService.listarSucursales(page, size));
+    }
+
+    @PostMapping
+    public ResponseEntity<SucursalResponse> crear(
+            @RequestBody @Valid SucursalRequest request
+            ) {
+
+        log.info("[POST-SucursalController]: llamando al controlador crear");
+
+        var response = sucursalService.crearSucursal(request);
+
+        return ResponseEntity.created(URI.create("/api/sucursales/" + response.getId()))
+                .body(response);
     }
 }

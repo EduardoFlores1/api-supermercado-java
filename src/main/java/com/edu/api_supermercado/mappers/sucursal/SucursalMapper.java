@@ -1,5 +1,6 @@
 package com.edu.api_supermercado.mappers.sucursal;
 
+import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
 import com.edu.api_supermercado.entity.Sucursal;
 
@@ -14,4 +15,13 @@ public class SucursalMapper {
                 .telefono(entity.getTelefono())
                 .build();
     };
+
+    public static Sucursal toCreateFromRequest(SucursalRequest request) {
+        if (request == null) return null;
+        return Sucursal.builder()
+                .nombre(request.nombre())
+                .direccion(request.direccion())
+                .telefono(request.telefono())
+                .build();
+    }
 }

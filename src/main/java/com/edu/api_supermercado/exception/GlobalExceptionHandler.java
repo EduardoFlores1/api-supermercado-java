@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
                 .forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
 
         ProblemDetail problemDetail = ProblemDetail.
-                forStatusAndDetail(HttpStatus.BAD_REQUEST, "Error de validación en uno o más campo");
+                forStatusAndDetail(HttpStatus.BAD_REQUEST, "Error de validación en uno o más campos");
 
         problemDetail.setTitle("Error De Validación");
         problemDetail.setProperty("errors", errores);
