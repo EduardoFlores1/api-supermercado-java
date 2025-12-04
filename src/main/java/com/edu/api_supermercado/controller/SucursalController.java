@@ -54,4 +54,16 @@ public class SucursalController {
 
         return ResponseEntity.ok(sucursalService.actualizarSucursal(id, request));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id
+    ) {
+
+        log.info("[DELETE-SucursalController]: llamando al controlador eliminar");
+
+        sucursalService.eliminarSucursal(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

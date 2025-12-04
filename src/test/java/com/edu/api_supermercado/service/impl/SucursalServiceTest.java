@@ -167,6 +167,35 @@ class SucursalServiceTest {
     }
 
     @Test
-    void eliminarSucursal() {
+    @DisplayName("eliminarSucursal: servicio retorna 404")
+    void eliminarSucursal_notFound() {
+
+        Long id = 999L;
+
+        when(sucursalRepository.existsById(id)).thenReturn(false);
+
+        assertThrows(
+                SucursalNoEncontradaException.class,
+                () -> sucursalService.eliminarSucursal(id)
+        );
+
+        verify(sucursalRepository, times(1)).existsById(id);
+        verify(sucursalRepository, never()).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("eliminarSucursal: servicio elimina correctamente")
+    void eliminarSucursal_ok() {
+
+        Long id = 1L;
+
+        Sucursal entity = Sucursal.builder().id(id).build();
+
+        when(sucursalRepository.existsById(id)).thenReturn(true);
+
+        sucursalService.eliminarSucursal(id);
+
+        verify(sucursalRepository, times(1)).existsById(id);
+        verify(sucursalRepository, times(1)).deleteById(id);
     }
 }

@@ -236,6 +236,43 @@ class SucursalControllerTest {
                 .andExpect(jsonPath("$.telefono").value(sucursalRequest.telefono()));
 
         verify(sucursalService, times(1)).actualizarSucursal(id, sucursalRequest);
+    }
 
+    @Test
+    @DisplayName("eliminarSucursal: id no encontrado")
+    void eliminarSucursal_notFound() throws Exception{
+
+        Long id = 999L;
+
+        doThrow(new SucursalNoEncontradaException(id))
+                .when(sucursalService).eliminarSucursal(id);
+
+        mockMvc.perform(delete("/api/sucursales/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(status().isNotFound())
+
+                .andExpect(jsonPath("$.title").value("Sucursal No Encontrada"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.sucursalId").value(id));
+
+        verify(sucursalService, times(1)).eliminarSucursal(id);
+    }
+
+    @Test
+    @DisplayName("eliminarSucursal: exitosa, retorna no content")
+    void eliminarSucursal_ok_noContent() throws Exception{
+
+        Long id = 1L;
+
+        doNothing().when(sucursalService).eliminarSucursal(id);
+
+        mockMvc.perform(delete("/api/sucursales/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isNoContent());
+
+        verify(sucursalService, times(1)).eliminarSucursal(id);
     }
 }

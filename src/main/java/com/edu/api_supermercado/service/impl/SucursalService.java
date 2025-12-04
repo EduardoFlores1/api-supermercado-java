@@ -2,6 +2,8 @@ package com.edu.api_supermercado.service.impl;
 
 import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
+import com.edu.api_supermercado.exception.models.producto.ProductoEliminadoException;
+import com.edu.api_supermercado.exception.models.producto.ProductoNoEncontradoException;
 import com.edu.api_supermercado.exception.models.sucursal.SucursalNoEncontradaException;
 import com.edu.api_supermercado.mappers.sucursal.SucursalMapper;
 import com.edu.api_supermercado.repository.ISucursalRepository;
@@ -71,7 +73,16 @@ public class SucursalService implements ISucursalService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public void eliminarSucursal(Long id) {
 
+        log.info("[DELETE]: Eliminando sucursal con id: {}", id);
+
+        if (!sucursalRepository.existsById(id))
+            throw new SucursalNoEncontradaException(id);
+
+        sucursalRepository.deleteById(id);
+
+        log.info("[DELETE]: Sucursal eliminada exitosamente, id: {}", id);
     }
 }
