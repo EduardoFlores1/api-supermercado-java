@@ -2,6 +2,7 @@ package com.edu.api_supermercado.exception;
 
 import com.edu.api_supermercado.exception.models.producto.ProductoEliminadoException;
 import com.edu.api_supermercado.exception.models.producto.ProductoNoEncontradoException;
+import com.edu.api_supermercado.exception.models.sucursal.SucursalNoEncontradaException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -76,6 +77,21 @@ public class GlobalExceptionHandler {
 
         problemDetail.setTitle("Producto No Disponible");
         problemDetail.setProperty("productoId", ex.getProductoId());
+        problemDetail.setProperty("timestamp", Instant.now());
+
+        return problemDetail;
+    }
+
+    // Sucursales
+    @ExceptionHandler(SucursalNoEncontradaException.class)
+    public ProblemDetail handleSucursalNoEncontrada(SucursalNoEncontradaException ex) {
+        log.error("Error, SucursalNoEncontrada: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail
+                .forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+
+        problemDetail.setTitle("Sucursal No Encontrada");
+        problemDetail.setProperty("sucursalId", ex.getSucursalId());
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;

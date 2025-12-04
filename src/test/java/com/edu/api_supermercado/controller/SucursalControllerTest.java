@@ -2,7 +2,7 @@ package com.edu.api_supermercado.controller;
 
 import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
-import com.edu.api_supermercado.entity.Sucursal;
+import com.edu.api_supermercado.exception.models.sucursal.SucursalNoEncontradaException;
 import com.edu.api_supermercado.service.ISucursalService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,18 +35,11 @@ class SucursalControllerTest {
     @MockitoBean
     private ISucursalService sucursalService;
 
-    private Sucursal sucursalEntity;
     private SucursalResponse sucursalResponse;
     private SucursalRequest sucursalRequest;
 
     @BeforeEach
     void setUp() {
-        this.sucursalEntity = Sucursal.builder()
-                .id(1L)
-                .nombre("Ica")
-                .direccion("Calle Ica")
-                .telefono("987654321")
-                .build();
 
         this.sucursalResponse = SucursalResponse.builder()
                 .id(2L)
@@ -163,5 +155,87 @@ class SucursalControllerTest {
         verify(sucursalService, never()).crearSucursal(any(SucursalRequest.class));
     }
 
+    @Test
+    @DisplayName("actualizarSucursal: not found  by id")
+    void actualizarSucursal_notFound() throws Exception{
 
+        Long id = 999L;
+
+        when(sucursalService.actualizarSucursal(eq(id), any(SucursalRequest.class)))
+                .thenThrow(new SucursalNoEncontradaException(id));
+
+        mockMvc.perform(put("/api/sucursales/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sucursalRequest)))
+
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(status().isNotFound())
+
+                .andExpect(jsonPath("$.title").value("Sucursal No Encontrada"))
+                .andExpect(jsonPath("$.sucursalId").value(id));
+
+        verify(sucursalService, times(1)).actualizarSucursal(eq(id), any(SucursalRequest.class));
+    }
+
+    @Test
+    @DisplayName("actualizarSucursal: Error, request es inválida")
+    void actualizarSucursal_invalidRequest() throws Exception{
+
+        Long id = 1L;
+        String msgErrorDetail = "Error de validación en uno o más campos";
+        SucursalRequest requestInvalido = new SucursalRequest(
+                "",
+                "",
+                "98765432"
+        );
+
+        mockMvc.perform(put("/api/sucursales/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestInvalido)))
+
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(status().isBadRequest())
+
+                .andExpect(jsonPath("$.title").value("Error De Validación"))
+                .andExpect(jsonPath("$.detail").value(msgErrorDetail))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors").exists())
+                .andExpect(jsonPath("$.errors.nombre").exists())
+                .andExpect(jsonPath("$.errors.direccion").exists())
+                .andExpect(jsonPath("$.errors.telefono").exists());
+
+        verify(sucursalService, never()).actualizarSucursal(eq(id), any(SucursalRequest.class));
+    }
+
+    @Test
+    @DisplayName("actualizarSucursal: Retorna ok, request válida")
+    void actualizarSucursal_ok() throws Exception{
+
+        Long id = 1L;
+
+        SucursalResponse mockResponse = SucursalResponse.builder()
+                .id(1L)
+                .nombre("Ica")
+                .direccion("Calle Ica")
+                .telefono("987654321")
+                .build();
+
+        when(sucursalService.actualizarSucursal(id, sucursalRequest))
+                .thenReturn(mockResponse);
+
+        mockMvc.perform(put("/api/sucursales/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sucursalRequest)))
+
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.nombre").value(sucursalRequest.nombre()))
+                .andExpect(jsonPath("$.direccion").value(sucursalRequest.direccion()))
+                .andExpect(jsonPath("$.telefono").value(sucursalRequest.telefono()));
+
+        verify(sucursalService, times(1)).actualizarSucursal(id, sucursalRequest);
+
+    }
 }

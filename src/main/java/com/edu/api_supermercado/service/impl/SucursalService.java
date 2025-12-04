@@ -2,6 +2,7 @@ package com.edu.api_supermercado.service.impl;
 
 import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
+import com.edu.api_supermercado.exception.models.sucursal.SucursalNoEncontradaException;
 import com.edu.api_supermercado.mappers.sucursal.SucursalMapper;
 import com.edu.api_supermercado.repository.ISucursalRepository;
 import com.edu.api_supermercado.service.ISucursalService;
@@ -52,8 +53,21 @@ public class SucursalService implements ISucursalService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public SucursalResponse actualizarSucursal(Long id, SucursalRequest request) {
-        return null;
+
+        log.info("[PUT]: Actualizando sucursal, id: {}", id);
+
+        var sucursalFind = sucursalRepository.findById(id)
+                        .orElseThrow(() -> new SucursalNoEncontradaException(id));
+
+        sucursalFind.setNombre(request.nombre());
+        sucursalFind.setDireccion(request.direccion());
+        sucursalFind.setTelefono(request.telefono());
+
+        log.info("[PUT]: Sucursal actualizada exitosamente, id: {}", id);
+
+        return SucursalMapper.toResponseFromEntity(sucursalFind);
     }
 
     @Override

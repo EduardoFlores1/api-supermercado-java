@@ -43,4 +43,15 @@ public class SucursalController {
         return ResponseEntity.created(URI.create("/api/sucursales/" + response.getId()))
                 .body(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SucursalResponse> update(
+            @PathVariable Long id,
+            @RequestBody @Valid SucursalRequest request
+    ) {
+
+        log.info("[PUT-SucursalController]: llamando al controlador update");
+
+        return ResponseEntity.ok(sucursalService.actualizarSucursal(id, request));
+    }
 }

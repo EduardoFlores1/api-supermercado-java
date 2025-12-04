@@ -3,6 +3,7 @@ package com.edu.api_supermercado.service.impl;
 import com.edu.api_supermercado.dtos.sucursal.SucursalRequest;
 import com.edu.api_supermercado.dtos.sucursal.SucursalResponse;
 import com.edu.api_supermercado.entity.Sucursal;
+import com.edu.api_supermercado.exception.models.sucursal.SucursalNoEncontradaException;
 import com.edu.api_supermercado.repository.ISucursalRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -44,7 +46,7 @@ class SucursalServiceTest {
                 .build();
 
         this.sucursalEntity2 = Sucursal.builder()
-                .id(1L)
+                .id(2L)
                 .nombre("Pisco")
                 .direccion("Calle Pisco")
                 .telefono("987654321")
@@ -125,7 +127,43 @@ class SucursalServiceTest {
     }
 
     @Test
-    void actualizarSucursal() {
+    @DisplayName("actualizarSucursal: Error 404, sucursal no encontrada")
+    void actualizarSucursal_notFound() {
+
+        when(sucursalRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                SucursalNoEncontradaException.class,
+                () -> sucursalService.actualizarSucursal(1L, sucursalRequest)
+        );
+
+        verify(sucursalRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("actualizarSucursal: Error 404, sucursal no encontrada")
+    void actualizarSucursal_invalidRequest() {
+
+        Long id = 1L;
+
+        SucursalRequest toUpdate = new SucursalRequest(
+                "Chincha",
+                "Calle Chincha",
+                "987654321"
+        );
+
+        when(sucursalRepository.findById(id)).thenReturn(Optional.of(sucursalEntity));
+
+        SucursalResponse response = sucursalService.actualizarSucursal(id, toUpdate);
+
+        assertNotNull(response);
+        assertEquals(id, response.getId());
+        assertEquals(toUpdate.nombre(), response.getNombre());
+        assertEquals(toUpdate.direccion(), response.getDireccion());
+        assertEquals(toUpdate.telefono(), response.getTelefono());
+
+        verify(sucursalRepository, times(1)).findById(id);
+        verify(sucursalRepository, never()).save(any());
     }
 
     @Test
