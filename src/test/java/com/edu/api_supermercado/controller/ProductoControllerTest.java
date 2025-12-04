@@ -167,7 +167,7 @@ class ProductoControllerTest {
     @DisplayName("Crear Producto - Debe retornar error 400 Bad Request por error de validacion")
     void crear_errorDeValidacion() throws Exception {
         // Given
-        String msgErrorDetail = "Error de validación en uno o más campo";
+        String msgErrorDetail = "Error de validación en uno o más campos";
         ProductoRequest requestInvalido = new ProductoRequest(
                 "",
                 CategoriaProducto.BEBIDAS,
